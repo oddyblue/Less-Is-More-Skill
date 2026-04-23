@@ -1,0 +1,4 @@
+interface:
+  display_name: "Less Is More"
+  short_description: "Architecture-first workflow for cleaner code changes"
+  default_prompt: "Use $less-is-more to inspect the real code path, verify unstable facts from current primary sources, treat hesitation as a signal to investigate further, and choose the clearest justified outcome."
