@@ -67,13 +67,17 @@ If the diagnosis is still soft, the answer is usually not a bigger patch. The an
 
 ### Skills CLI
 
-After this repo is published, install it with:
+Install it with:
 
 ```bash
-npx skills add https://github.com/YOUR_NAME/less-is-more --skill less-is-more
+npx skills add https://github.com/oddyblue/less-is-more-skill --skill less-is-more
 ```
 
-Replace `YOUR_NAME` with the GitHub owner you publish under.
+You can also try the shorthand form:
+
+```bash
+npx skills add oddyblue/less-is-more-skill --skill less-is-more
+```
 
 ### Codex
 
