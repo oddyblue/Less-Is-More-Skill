@@ -1,9 +1,4 @@
----
-description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use when the goal is professional, auditable code free of accidental complexity — reached by tracing the owning code path, verifying drift-prone facts against current primary sources, reusing what the codebase already provides, choosing the clearest justified outcome (deletion, consolidation, a narrow addition, or no edit), and sweeping the finished diff until every hunk earns its place.
-alwaysApply: true
----
-
-<!-- Synced from skills/less-is-more/SKILL.md — edit there first, then mirror the body here and into AGENTS.md. -->
+<!-- Synced from skills/less-is-more/SKILL.md — edit there first, then mirror the body here and into .cursor/rules/less-is-more.mdc. -->
 
 # Less Is More
 

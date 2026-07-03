@@ -1,119 +1,97 @@
 # Less Is More
 
-An architecture-first instruction set for coding agents.
+An architecture-first, reduction-first skill for coding agents — Claude Code, Codex, Cursor, and anything that reads `AGENTS.md` or the [Agent Skills](https://agentskills.io) format.
 
 Less accidental complexity. More evidence. More ownership clarity.
 
-`Less Is More` helps agents make safer, cleaner, more current code changes by forcing a stronger workflow before they edit:
+The skill makes an agent earn its diff:
 
-- inspect the real local baseline
-- verify unstable facts from current primary sources
-- trace the owning code path before proposing a fix
-- treat hesitation as a signal to investigate further
-- compare nearby explanations and realistic fixes
-- choose the clearest justified outcome, not the first workable patch
+- start from the real repo state, not memory
+- verify drift-prone facts against current primary sources, as of the actual date
+- trace the owning code path before editing — never patch the diff window
+- reuse what the codebase already provides before writing anything new
+- choose the clearest justified outcome: deletion, consolidation, a narrow addition, or no edit
+- sweep the finished diff until every hunk earns its place
 
-## The Problem
+## The problem
 
-Coding agents often fail in predictable ways:
+Coding agents fail in predictable ways:
 
-- they make silent assumptions and code past uncertainty
 - they patch the nearest symptom instead of the owning code path
-- they trust stale framework knowledge or old examples
-- they add abstractions, helpers, or "flexibility" before it is earned
-- they produce plausible changes that are harder to explain than the problem itself
+- they re-implement helpers the codebase already has
+- they trust stale framework knowledge and old examples
+- they add speculative abstraction before it is earned — or repeat themselves instead of naming the repetition
+- they stop at "tests pass," leaving scaffolding in the diff: narrating comments, unused parameters, debug output, drive-by churn
 
-## The Approach
+## The idea
 
-`Less Is More` is not "write fewer lines no matter what."
+*Less* means less accidental complexity, duplication, and confused ownership — never less rigor, less verification, or fewer lines for their own sake. The aim is the best professional solution the problem justifies, leaving a codebase that stays fast to understand as it compounds.
 
-It means:
+One bar governs every change:
 
-- less accidental complexity
-- less duplicate state
-- less confused ownership
-- less speculative abstraction
-- fewer changes made on weak evidence
+> The gate is proof, not permission.
 
-The goal is a system that is easier to inspect, explain, change, and trust.
+Evidence of a clearly better outcome licenses a complete fix — including improvements discovered beyond the ask — and forbids expanding scope on a hunch. The bar cuts both ways: it blocks timid half-measures as firmly as reckless sprawl.
 
-## What Makes It Different
+The workflow in one breath: trace the owning path → audit the shape → reuse before writing → weigh the strongest options → verify → then a final pass over the diff, because a diff that works is not yet a diff that is finished.
 
-Many instruction files focus on behavior in the abstract. `Less Is More` is a workflow.
+## Layout
 
-It pushes the agent to:
+- [`skills/less-is-more/SKILL.md`](./skills/less-is-more/SKILL.md) — canonical text, the single source of truth
+- [`AGENTS.md`](./AGENTS.md) — the same text as a cross-agent root instruction file
+- [`.cursor/rules/less-is-more.mdc`](./.cursor/rules/less-is-more.mdc) — the same text as a Cursor project rule
+- [`skills/less-is-more/agents/openai.yaml`](./skills/less-is-more/agents/openai.yaml) — Codex skill interface metadata
+- [`EXAMPLES.md`](./EXAMPLES.md) — the workflow in practice
 
-- start from the real repo state instead of memory
-- verify time-sensitive facts against current primary sources
-- look for the real owner of the behavior before editing
-- challenge the leading diagnosis when confidence is incomplete
-- prefer deletion, consolidation, or reshaping when those produce a stronger result
-- stop when evidence is weak instead of forcing motion
-
-The key idea is simple:
-
-> Treat hesitation as a signal, not a speed bump.
-
-If the diagnosis is still soft, the answer is usually not a bigger patch. The answer is better investigation.
-
-## Files
-
-- [`skills/less-is-more/SKILL.md`](./skills/less-is-more/SKILL.md): installable skill
-- [`CLAUDE.md`](./CLAUDE.md): portable root instruction file
-- [`.cursor/rules/less-is-more.mdc`](./.cursor/rules/less-is-more.mdc): Cursor project rule
-- [`EXAMPLES.md`](./EXAMPLES.md): short examples of the workflow in practice
+If you change the skill, edit `SKILL.md` first, then mirror the body into `AGENTS.md` and the Cursor rule.
 
 ## Install
 
-### Skills CLI
+### Claude Code
 
-Install it with:
+Copy the skill folder into your user skills directory:
 
 ```bash
-npx skills add https://github.com/oddyblue/less-is-more-skill --skill less-is-more
+cp -r skills/less-is-more ~/.claude/skills/
 ```
 
-You can also try the shorthand form:
+Claude Code triggers it automatically from the description, or invoke it explicitly with `/less-is-more`.
+
+### Codex
+
+```bash
+cp -r skills/less-is-more ~/.codex/skills/
+```
+
+### Skills CLI
 
 ```bash
 npx skills add oddyblue/less-is-more-skill --skill less-is-more
 ```
 
-### Codex
-
-Copy [`skills/less-is-more`](./skills/less-is-more) into your Codex skills directory, typically:
-
-```text
-~/.codex/skills/less-is-more
-```
-
-### Claude Code
-
-Copy or merge [`CLAUDE.md`](./CLAUDE.md) into your project instruction file.
-
 ### Cursor
 
 Copy [`.cursor/rules/less-is-more.mdc`](./.cursor/rules/less-is-more.mdc) into your project's `.cursor/rules/` directory.
 
-## How To Know It's Working
+### Any other agent
 
-These guidelines are working if you see:
+Copy [`AGENTS.md`](./AGENTS.md) into the project root, or merge it with an existing `AGENTS.md`.
 
-- fewer speculative abstractions and fewer drive-by edits
-- more fixes landing in the real owner instead of a nearby symptom
-- more current, source-backed decisions on unstable facts
-- smaller diffs that are easier to defend
-- clarifying questions or deeper investigation before mistakes, not after them
+## How to know it's working
+
+- fixes land in the real owner instead of a nearby symptom
+- new code extends existing helpers instead of forking near-duplicates
+- decisions on unstable facts are current and source-backed
+- diffs arrive swept: no scaffolding, no narrating comments, no drive-by churn
+- deeper investigation happens before mistakes, not after them
+
+## Honest calibration
+
+On top-tier models, much of this workflow is close to default behavior — the gains concentrate in the parts models actually skip: the reuse check before writing new code, and the final pass over the finished diff. The rest pins the bar in writing so behavior stays consistent across tasks, sessions, and models. Weaker or faster models benefit more broadly.
 
 ## Tradeoff
 
-`Less Is More` biases toward rigor over speed on non-trivial work.
-
-That is intentional. It should reduce expensive mistakes, not slow down obvious one-line edits with unnecessary ceremony.
-
-## Examples
-
-See [`EXAMPLES.md`](./EXAMPLES.md) for concrete before-and-after behavior.
+Rigor over speed on non-trivial work — by design. The skill itself tells the agent to match effort to the task and never turn a small mechanical edit into process theater.
 
 ## License
 

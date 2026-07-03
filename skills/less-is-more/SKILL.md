@@ -1,157 +1,44 @@
 ---
-name: less is more
-description: General architecture-first, reduction-first engineering workflow for debugging, refactoring, cleanup, simplification, and code changes in any project. Use when the goal is to reduce unnecessary complexity, remove indirection, improve system architecture, and produce high-confidence, auditable solutions by tracing the owning code path before editing, verifying unstable facts, and preferring deletion, consolidation, clearer ownership, and built-in platform or library primitives over new abstractions when they produce a stronger result.
+name: less-is-more
+description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use when the goal is professional, auditable code free of accidental complexity — reached by tracing the owning code path, verifying drift-prone facts against current primary sources, reusing what the codebase already provides, choosing the clearest justified outcome (deletion, consolidation, a narrow addition, or no edit), and sweeping the finished diff until every hunk earns its place.
 ---
 
 # Less Is More
 
-Make safe, current, auditable code changes in any project. Start from the real local state, verify unstable facts from primary sources, understand the owning code path before editing, and prefer clearer code over busier code.
+Make changes that leave the system easier to inspect, explain, change, and trust. *Less* means less accidental complexity, duplication, and confused ownership — never less rigor, less verification, or fewer lines for their own sake. The aim is the best professional solution the problem justifies — often reached by subtraction, sometimes by a narrow addition, sometimes by no edit yet — leaving a codebase that stays fast to understand as it compounds over time.
 
-The name does not mean fewer lines at any cost. It means less accidental complexity, less duplication, less confused ownership, and fewer moving parts than the problem actually requires.
+## The bar for changing code
 
-Simpler is preferred, not mandatory. If a small additive change is genuinely the clearest and safest answer, make it and explain why it is stronger than deletion, consolidation, or continued diagnosis.
+Change code when there is evidence of a clearly better outcome — then change it fully and well: a complete fix, not a timid half-measure. The same bar covers improvements you discover beyond the ask: investigate deeply, check against the strongest alternatives, and once certain something is genuinely better, fix it too. The gate is proof, not permission — it licenses real betterment and forbids expanding scope on a hunch. When the evidence isn't there, keep diagnosing or leave the code alone. And the bar cuts both ways: small but weak code (tangled ownership, a violated invariant) still justifies change even when the fix is larger.
 
-Do not change things just to be helpful. Change code only when the evidence supports a clearly better outcome.
+If the request is ambiguous or self-contradictory and the risk is material, ask one sharp question; otherwise state the narrowest safe assumption and proceed.
 
-## Use It For
+## Work the owning path, not the diff window
 
-- simplifying architecture without weakening correctness
-- removing indirection, wrappers, or layers that no longer earn their keep
-- consolidating ownership and reducing duplicate state
-- debugging issues where the root cause may be architectural, not local
-- refactors, cleanup, and feature work where the best answer may be deletion, reshaping, or a narrow additive fix
-- correcting AI-written code that over-engineered a straightforward problem
+1. **Start from real state.** The actual files, dependency versions, config, and current worktree — not memory or assumption.
+2. **Verify what can drift.** Framework and library APIs, platform rules, and time-sensitive facts: confirm against current primary sources, as of today's actual date, before relying on them.
+3. **Trace ownership.** Follow inputs, state, side effects, and the surrounding call sites until you can see where the behavior actually lives and how the end-to-end flow works.
+4. **Audit the shape before editing.** The problem is often the wrong code being present, not code missing. Look for duplicate state, a second source of truth, abandoned migrations, dead or disabled branches, stale compatibility code, and abstraction with a single caller that guards no real boundary. Before removing code that only looks dead, confirm it is truly unreachable — no live call site, no reachable state, no path it quietly protects.
+5. **Reuse before writing.** Find what already does the job — the codebase's own helper, pattern, or idiom first, then a built-in platform or library primitive — and extend the existing owner rather than fork a near-duplicate. Re-implementing a capability the system already has is the most common way good diffs go bad.
+6. **Weigh the options, then choose.** Compare the strongest realistic paths — more diagnosis, deletion, consolidation, reuse, or a narrow addition — and the competing explanations for the cause, not just the fixes. Pick the smallest change that fully solves the problem and leaves the owning path most auditable: fewer sources of truth, fewer branches, clearer ownership, logic kept with its existing owner, in the project's idiom unless the idiom is the problem. Once you can say why it beats the alternatives, act — don't ritualize the comparison.
+7. **Verify your result.** Focused tests for logic changes (including updating or removing tests that pinned the old behavior); targeted local validation for UI, lifecycle, concurrency, storage, or integration behavior — done yourself before handing back. Confirm any simplification cut clutter without erasing useful behavior or product character.
 
-## Do Not Misread It As
+## Where complexity hides
 
-- a rule to minimize line count regardless of clarity
-- permission to compress logic until it becomes harder to read
-- a bias against well-placed abstractions that enforce important boundaries
-- a reason to keep weak architecture just because it is already smaller
-- a reason to flatten useful product character or user-facing differentiation
+Look hardest where simplification tends to go wrong: state ownership and synchronization; concurrency, async lifetimes, and cancellation; navigation, lifecycle, and scheduling; storage schemas, migrations, and caching; configuration and environment-specific branches; permissions and external integrations.
 
-## Architecture Lens
+## Altitude
 
-Aim for the strongest architecture the current problem justifies, not the most elaborate architecture you can imagine.
+Altitude — the level of abstraction the code sits at — fails in both directions. Too high: speculative generality — layers, options, and parameters with one real caller, abstraction added to feel architectural, complexity moved around instead of removed, one responsibility split across several owners. Too low: repetition that wants a name, hand-rolled machinery that reimplements a built-in primitive. Adding structure is right when it enforces a real boundary, preserves an invariant, or contains complexity better than a flatter shape would — when you add, say why it beats deletion or consolidation, not just that it works. Naming is a cheap probe: a thing you can't name honestly is usually the wrong shape. Keep the clear shape efficient: no gratuitous recomputation, repeated I/O, or quadratic passes over unbounded input — and never contort readable code for an unmeasured micro-win.
 
-Prefer clear ownership boundaries, one obvious source of truth, invariants enforced near their owner, and interfaces that are small, explicit, and difficult to misuse.
+## The final pass
 
-Avoid abstraction added mainly to feel architectural, splitting one responsibility across multiple coordinators or services, preserving stale compatibility code after the real dependency has moved on, or moving complexity around instead of removing it.
+Working is not done. Re-read the complete diff as a skeptical reviewer: leftover scaffolding and debug output; comments that narrate the change or the process instead of stating a constraint the code can't show; unused parameters, imports, and guards for impossible states; a near-duplicate of something that already existed; churn — renames, reformatting, drive-by edits — that doesn't trace to the task or a verified improvement. Then look once more at the shape: the working version often reveals a simplification the plan couldn't see, and folding it in now is cheap. Every hunk should earn its place; this pass is what separates a diff that works from one that is finished.
 
-Good architecture is often smaller because it is better shaped. When a stronger boundary or explicit abstraction genuinely prevents misuse, preserves invariants, or contains complexity, use it.
+## Don't force it
 
-## Precision Discipline
+Don't edit on a hunch, and don't impose a generic best-practice pattern over the system's documented and actual behavior. If you can't name the owning path, verify the fact, or explain why your change beats the strongest alternative, keep investigating instead of patching. And don't over-work a task whose path is already clear — match effort to the task, and don't turn a small mechanical edit into process theater.
 
-Before acting, make the task concrete:
+## Report
 
-- identify the real objective, constraints, and non-goals
-- resolve contradictory or vague instructions before committing to an approach
-- define what success looks like in observable terms
-- keep verbosity proportional to the task instead of defaulting to long explanations or large patches
-- prefer explicit structure, checklists, schemas, tests, or acceptance criteria when the output shape matters
-- if the request is ambiguous and risk is material, ask a short clarifying question; otherwise make the narrowest safe assumption explicit
-- for user-facing work, form a small internal quality bar for clarity, usability, and product character before editing
-- if the likely fix is still uncertain, keep diagnosing or compare the strongest realistic approaches before touching code
-
-## Research Standard
-
-Treat hesitation as a signal, not a speed bump.
-When uncertainty is material, the fact pattern is incomplete, or the answer may have changed, raise the research bar instead of lowering it.
-
-Do not rush past uncertainty with a quick patch, a vague explanation, or the first workable answer.
-If you are not confident in the diagnosis, keep investigating until the shape of the problem is genuinely clearer.
-
-Do not anchor on the first plausible explanation, the first workable fix, or the first search result that appears to fit.
-Challenge the leading diagnosis, compare nearby causes, and pressure-test the strongest realistic alternatives before choosing a fix.
-
-Use the actual current date and verify time-sensitive facts against current primary sources.
-Prefer official docs, release notes, standards, vendor guidance, and the real local code over memory, summaries, tutorials, or stale examples.
-
-Research should narrow uncertainty, not create theater.
-Go deeper only where the missing understanding could change the diagnosis, the ownership, or the shape of the fix.
-
-Keep investigating until you can name the real problem, explain why nearby explanations are weaker, and defend the cleanest fix with evidence.
-
-## Operating Loop
-
-1. Establish the local baseline.
-   Inspect the actual repo, dependency versions, build tooling, configs, entry points, tests, and current worktree state before making claims.
-
-2. Verify unstable facts live.
-   For framework behavior, library APIs, platform guidance, tooling changes, policies, or anything time-sensitive, check primary current sources first.
-   Use the actual current date and confirm the guidance is still current rather than assuming memory, cached snippets, or old examples are good enough.
-   Prefer official docs, standards, release notes, and vendor-maintained references over memory.
-
-3. Inspect the real code path.
-   Trace the owning code path and surrounding behavior before proposing a fix.
-   Follow inputs, state transitions, side effects, and outputs until you understand where the behavior is actually owned.
-   Read the touched files, nearby tests, configs, related modules, and adjacent call sites that explain the end-to-end flow.
-
-4. Audit the shape of the solution before editing.
-   Identify the current source of truth, duplicate state, stale workarounds, abandoned migrations, defensive branches, compatibility code, or custom abstractions that may no longer be needed.
-   Ask whether the problem exists because the wrong code is present, not because code is missing.
-   Prefer moving logic closer to the existing owner over introducing another owner.
-   Check whether the current architecture makes invariants too easy to violate or ownership too hard to follow.
-
-5. Interrogate the real solution space.
-   Think through the strongest realistic paths before editing.
-   That may include continued diagnosis, deleting code, consolidating ownership, replacing custom machinery with native or built-in features, or adding a narrow amount of code.
-   Compare the strongest realistic explanations for the problem, not just the strongest implementation ideas.
-   Prefer the smallest change that fully solves the problem and leaves the architecture stronger.
-   Once you can name the exact thing to change and explain why it is better than the strongest realistic alternatives, prefer acting over continued exploration.
-   Do not force a ritual comparison. Use as much exploration as the task actually needs.
-
-6. Choose the clearest justified outcome.
-   Pick the option that leaves the owning code path easier to audit after the change.
-   Prefer fewer sources of truth, fewer conditional branches, fewer custom layers, stronger boundaries, and names that make ownership obvious.
-   Avoid adding managers, wrappers, helpers, coordinators, service layers, or extra indirection unless they clearly improve ownership, enforce an important boundary, or prevent misuse better than a simpler shape would.
-   Do not force deletion if it would hide the real fix, spread logic awkwardly, or weaken correctness.
-
-7. Stop if evidence is weak.
-   Do not edit on a hunch.
-   If no fix is clearly justified by evidence, do not force one.
-   If you cannot identify the owning code path, verify the relevant fact, compare at least one lower-complexity option, or explain how the result will be checked, investigate more before changing code.
-
-8. Verify the result.
-   Perform the minimum verification needed to justify the change yourself before asking the user for anything.
-   Add or update focused tests when logic changes.
-   For integration, UI, lifecycle, concurrency, storage, or environment-sensitive behavior, prefer targeted local validation over handing the user a generic QA checklist.
-   If the task is user-facing, verify that simplification reduced clutter without erasing useful behavior, identity, or clarity.
-
-## Common Pressure Points
-
-Pay extra attention to:
-
-- state ownership and synchronization
-- concurrency, async lifetimes, and cancellation
-- configuration drift and environment-specific branches
-- navigation, lifecycle, background work, and scheduling
-- storage schemas, migrations, caching, and persistence boundaries
-- permissions, policy-sensitive behavior, and external integrations
-
-## Rules
-
-- Treat this skill as a workflow, not a slogan.
-- Treat "less" as less accidental complexity, not less rigor.
-- Prefer the minimum necessary code, but never at the cost of weaker ownership, weaker invariants, or a harder-to-change design.
-- The goal is a system that is easier to inspect, explain, change, and trust.
-- Prefer current official documentation and current local code over memory for time-sensitive decisions.
-- Prefer documented behavior and measured local evidence over generic best-practice advice.
-- When uncertainty is material, increase the quality of the investigation before increasing the size of the patch.
-- Communicate uncertainty directly and keep investigating instead of patching around it.
-- Do not make changes for the sake of motion, confidence, or apparent progress.
-- Own the investigation and verification work instead of defaulting to user-assigned QA tasks.
-- Prefer deletion and consolidation when they improve clarity, not as dogma.
-- Prefer the strongest justified architecture, not the largest architecture.
-- Do not chase impossible certainty or endless perfection; stop when one path is clearly justified by evidence and verification.
-- If you add code, explain why it is the strongest approach, not just a plausible one.
-- Respect the project's existing architecture and conventions unless they are part of the problem.
-- Keep user momentum. Do not turn tiny mechanical tasks into process theater.
-- Explain the change plainly when useful, but keep the workflow focused on making the right technical change.
-
-## Response Contract
-
-- Before non-trivial edits, give a short pre-edit analysis unless the user explicitly asks you not to.
-- Keep that analysis tight: state the concrete problem, the local evidence, the chosen path, the main risk, and how the result will be verified. Mention official-source evidence only when the fact is unstable.
-- After editing, give a short verification summary stating what changed, what you verified, and any residual risk.
-- For tiny mechanical edits, compress the analysis and summary to a few lines instead of forcing a template.
+Before a non-trivial edit, give a short read: the concrete problem, the local evidence, the chosen path, the main risk, and how you'll check it. After, state what changed, what you verified, and any residual risk — including adjacent improvements you confirmed and made, and anything you spotted but couldn't fully verify, surfaced for a decision rather than left unsaid. Compress to a line for tiny edits.

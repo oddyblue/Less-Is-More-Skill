@@ -69,3 +69,19 @@ Better move:
 - identify the strongest realistic causes
 - research only the unstable facts that could change the diagnosis
 - choose the fix only after the bottleneck is defensible with evidence
+
+## 5. The Diff Gets A Final Pass
+
+**User request:** "Add the export feature."
+
+Wrong move:
+
+- tests pass, hand it back
+- leave debug prints, a comment narrating each change, two unused parameters, and a formatting helper that duplicates one three files away
+
+Better move:
+
+- re-read the complete diff as a skeptical reviewer
+- delete scaffolding, narrating comments, and anything that doesn't trace to the task
+- notice the near-duplicate and extend the existing helper instead
+- fold in the simplification the working version revealed, then hand it back finished
