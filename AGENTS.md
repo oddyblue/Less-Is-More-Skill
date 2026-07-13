@@ -1,6 +1,5 @@
 <!-- Synced from skills/less-is-more/SKILL.md — edit there first, then mirror the body here and into .cursor/rules/less-is-more.mdc. -->
 
-
 # Less Is More
 
 Leave the system easier to inspect, explain, change, and trust.
@@ -11,12 +10,14 @@ Prefer, in order: **no edit, deletion, consolidation, replacement, then a narrow
 
 For non-trivial work, decide whether the request is an audit, bug fix, feature, simplification, or a mix. Do not call new product behavior simplification, and do not turn classification into ceremony. If the request is materially ambiguous, contradictory, destructive, or likely to affect user data, ask one precise question; otherwise state the narrowest safe assumption and proceed.
 
+## Work the owning path, not the diff window
+
 1. **Start from real state.** Read the applicable repository instructions, current files, configuration, dependencies, tests, generated sources, and working tree. Protect unrelated user changes. Do not reason from memory when the current system can be inspected.
 2. **Name the invariant and owner.** State what must be true, which component enforces it, what state and side effects it owns, and what success and failure mean. If the invariant or owner is unclear, keep investigating.
-3. **Verify what can drift.** Confirm framework behavior, platform rules, external APIs, dependencies, and other time-sensitive facts against current primary sources. Say `unknown` when evidence is unavailable.
+3. **Verify what can drift.** Confirm framework behavior, platform rules, external APIs, dependencies, and other time-sensitive facts against current primary sources, as of today's actual date. Say `unknown` when evidence is unavailable.
 4. **Trace end to end.** Follow inputs, state, persistence, concurrency, cancellation, lifecycle, side effects, callers, and downstream consumers. Work from the ownership boundary, not only the reported symptom or diff window.
-5. **Audit the shape before writing.** Look for duplicate state, competing owners, second sources of truth, obsolete branches, abandoned migrations, unsupported compatibility, unacceptable fallbacks, unused configuration, hand-edited generated output, and abstractions that guard no real boundary. Before deleting apparently dead code, check reachable callers, supported clients, persisted data, migrations, and deployment paths.
-6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
+5. **Audit the shape before writing.** Look for duplicate state, competing owners, second sources of truth, obsolete branches, abandoned migrations, unsupported compatibility, unacceptable fallbacks, unused configuration, hand-edited generated output, and abstractions that guard no real boundary. Look hardest where simplification tends to break things: state synchronization; concurrency, async lifetimes, and cancellation; navigation, lifecycle, and scheduling; storage schemas, migrations, and caching; configuration and environment branches; permissions and external integrations. Before deleting apparently dead code, check reachable callers, supported clients, persisted data, migrations, and deployment paths.
+6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. When diagnosing, weigh the competing explanations for the cause, not only the candidate fixes. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
 7. **Verify the real outcome.** Use focused regression tests where behavior changed, remove tests that preserve obsolete behavior, and run the relevant broader checks. Match verification to the claim: an internal event is not proof of audible playback, visible rendering, durable persistence, delivered data, or completed teardown. Use real integration, lifecycle, device, or human checks when software tests cannot establish the result.
 
 ## Replace; do not layer
@@ -31,7 +32,7 @@ Do not implement an adjacent improvement merely because it is valid. Include adj
 
 In bug fixes and simplification work, treat every new state, runtime branch, fallback, abstraction, public API, protocol requirement, configuration option, dependency, or source of truth as a cost. First ask whether deletion, consolidation, or replacement makes it unnecessary. Feature work may require new behavior, but it should live with the existing owner and remove paths it supersedes.
 
-Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Do not compress readable code or remove useful checks to reduce line count.
+Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Naming is a cheap probe: a thing you cannot name honestly is usually the wrong shape. Do not compress readable code or remove useful checks to reduce line count. Keep the clear shape efficient: no gratuitous recomputation, repeated I/O, or quadratic passes over unbounded input, and never contort readable code for an unmeasured micro-win.
 
 Keep comments only when they explain an enduring constraint, non-obvious invariant, external requirement, or why a simpler-looking implementation is wrong. Delete comments that narrate the change, preserve bug history, repeat the code, or describe scaffolding that no longer exists. History belongs in commits and regression tests.
 
