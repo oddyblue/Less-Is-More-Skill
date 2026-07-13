@@ -83,5 +83,5 @@ Better move:
 
 - re-read the complete diff as a skeptical reviewer
 - delete scaffolding, narrating comments, and anything that doesn't trace to the task
-- notice the near-duplicate and extend the existing helper instead
-- fold in the simplification the working version revealed, then hand it back finished
+- replace any duplicate introduced by the feature with the existing helper
+- report separate cleanup opportunities without expanding the feature diff

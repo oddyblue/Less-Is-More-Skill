@@ -9,9 +9,10 @@ The skill makes an agent earn its diff:
 - start from the real repo state, not memory
 - verify drift-prone facts against current primary sources, as of the actual date
 - trace the owning code path before editing — never patch the diff window
-- reuse what the codebase already provides before writing anything new
-- choose the clearest justified outcome: deletion, consolidation, a narrow addition, or no edit
-- sweep the finished diff until every hunk earns its place
+- prefer no edit, deletion, consolidation, and replacement before addition
+- remove obsolete behavior instead of preserving it behind another layer
+- keep adjacent scope closed
+- finish with a subtractive pass over the affected diff
 
 ## The problem
 
@@ -21,19 +22,21 @@ Coding agents fail in predictable ways:
 - they re-implement helpers the codebase already has
 - they trust stale framework knowledge and old examples
 - they add speculative abstraction before it is earned — or repeat themselves instead of naming the repetition
+- they preserve obsolete behavior behind more guards, modes, and fallbacks
+- they expand into valid but unrelated improvements
 - they stop at "tests pass," leaving scaffolding in the diff: narrating comments, unused parameters, debug output, drive-by churn
 
 ## The idea
 
-*Less* means less accidental complexity, duplication, and confused ownership — never less rigor, less verification, or fewer lines for their own sake. The aim is the best professional solution the problem justifies, leaving a codebase that stays fast to understand as it compounds.
+*Less* means fewer competing owners, sources of truth, states, branches, fallbacks, abstractions, dependencies, and things that must change together — never less rigor, less verification, or fewer lines for their own sake.
 
-One bar governs every change:
+The decision order is:
 
-> The gate is proof, not permission.
+> No edit → delete → consolidate → replace → add narrowly.
 
-Evidence of a clearly better outcome licenses a complete fix — including improvements discovered beyond the ask — and forbids expanding scope on a hunch. The bar cuts both ways: it blocks timid half-measures as firmly as reckless sprawl.
+When requirements change, remove behavior they make obsolete instead of preserving it behind another layer. Keep adjacent improvements out unless they are necessary to preserve the requested invariant or keep its owning path coherent.
 
-The workflow in one breath: trace the owning path → audit the shape → reuse before writing → weigh the strongest options → verify → then a final pass over the diff, because a diff that works is not yet a diff that is finished.
+The workflow in one breath: name the invariant → trace its owner → audit the shape → choose the smallest coherent operation → verify the real outcome → finish subtractively → stop.
 
 ## Layout
 
@@ -80,14 +83,16 @@ Copy [`AGENTS.md`](./AGENTS.md) into the project root, or merge it with an exist
 ## How to know it's working
 
 - fixes land in the real owner instead of a nearby symptom
-- new code extends existing helpers instead of forking near-duplicates
+- obsolete behavior is removed instead of hidden behind another condition
+- new code extends existing owners instead of creating competing paths
 - decisions on unstable facts are current and source-backed
-- diffs arrive swept: no scaffolding, no narrating comments, no drive-by churn
+- adjacent opportunities are reported rather than silently added
+- final diffs contain no scaffolding, narrating comments, or drive-by churn
 - deeper investigation happens before mistakes, not after them
 
 ## Honest calibration
 
-On top-tier models, much of this workflow is close to default behavior — the gains concentrate in the parts models actually skip: the reuse check before writing new code, and the final pass over the finished diff. The rest pins the bar in writing so behavior stays consistent across tasks, sessions, and models. Weaker or faster models benefit more broadly.
+On top-tier models, much of this workflow is close to default behavior. The gains concentrate where models still drift: checking no-edit and subtraction before addition, replacing obsolete paths instead of layering around them, keeping adjacent scope closed, and finishing subtractively. The rest keeps that behavior consistent across tasks, sessions, and models. Weaker or faster models benefit more broadly.
 
 ## Tradeoff
 

@@ -1,46 +1,53 @@
 ---
-description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use when the goal is professional, auditable code free of accidental complexity — reached by tracing the owning code path, verifying drift-prone facts against current primary sources, reusing what the codebase already provides, choosing the clearest justified outcome (deletion, consolidation, a narrow addition, or no edit), and sweeping the finished diff until every hunk earns its place.
+description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use to trace the owning path, prefer no edit and subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, verify the real outcome, and finish with a subtractive diff pass.
 alwaysApply: true
 ---
 
 <!-- Synced from skills/less-is-more/SKILL.md — edit there first, then mirror the body here and into AGENTS.md. -->
 
+
 # Less Is More
 
-Make changes that leave the system easier to inspect, explain, change, and trust. *Less* means less accidental complexity, duplication, and confused ownership — never less rigor, less verification, or fewer lines for their own sake. The aim is the best professional solution the problem justifies — often reached by subtraction, sometimes by a narrow addition, sometimes by no edit yet — leaving a codebase that stays fast to understand as it compounds over time.
+Leave the system easier to inspect, explain, change, and trust.
 
-## The bar for changing code
+Prefer, in order: **no edit, deletion, consolidation, replacement, then a narrow addition**. This is a decision order, not a checklist to perform or narrate. Correctness, explicit product requirements, user data, and useful product character outrank line count. The target is less accidental complexity: fewer competing owners, sources of truth, states, branches, fallbacks, abstractions, dependencies, and things that must change together.
 
-Change code when there is evidence of a clearly better outcome — then change it fully and well: a complete fix, not a timid half-measure. The same bar covers improvements you discover beyond the ask: investigate deeply, check against the strongest alternatives, and once certain something is genuinely better, fix it too. The gate is proof, not permission — it licenses real betterment and forbids expanding scope on a hunch. When the evidence isn't there, keep diagnosing or leave the code alone. And the bar cuts both ways: small but weak code (tangled ownership, a violated invariant) still justifies change even when the fix is larger.
+## Establish the real problem
 
-If the request is ambiguous or self-contradictory and the risk is material, ask one sharp question; otherwise state the narrowest safe assumption and proceed.
+For non-trivial work, decide whether the request is an audit, bug fix, feature, simplification, or a mix. Do not call new product behavior simplification, and do not turn classification into ceremony. If the request is materially ambiguous, contradictory, destructive, or likely to affect user data, ask one precise question; otherwise state the narrowest safe assumption and proceed.
 
-## Work the owning path, not the diff window
+1. **Start from real state.** Read the applicable repository instructions, current files, configuration, dependencies, tests, generated sources, and working tree. Protect unrelated user changes. Do not reason from memory when the current system can be inspected.
+2. **Name the invariant and owner.** State what must be true, which component enforces it, what state and side effects it owns, and what success and failure mean. If the invariant or owner is unclear, keep investigating.
+3. **Verify what can drift.** Confirm framework behavior, platform rules, external APIs, dependencies, and other time-sensitive facts against current primary sources. Say `unknown` when evidence is unavailable.
+4. **Trace end to end.** Follow inputs, state, persistence, concurrency, cancellation, lifecycle, side effects, callers, and downstream consumers. Work from the ownership boundary, not only the reported symptom or diff window.
+5. **Audit the shape before writing.** Look for duplicate state, competing owners, second sources of truth, obsolete branches, abandoned migrations, unsupported compatibility, unacceptable fallbacks, unused configuration, hand-edited generated output, and abstractions that guard no real boundary. Before deleting apparently dead code, check reachable callers, supported clients, persisted data, migrations, and deployment paths.
+6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
+7. **Verify the real outcome.** Use focused regression tests where behavior changed, remove tests that preserve obsolete behavior, and run the relevant broader checks. Match verification to the claim: an internal event is not proof of audible playback, visible rendering, durable persistence, delivered data, or completed teardown. Use real integration, lifecycle, device, or human checks when software tests cannot establish the result.
 
-1. **Start from real state.** The actual files, dependency versions, config, and current worktree — not memory or assumption.
-2. **Verify what can drift.** Framework and library APIs, platform rules, and time-sensitive facts: confirm against current primary sources, as of today's actual date, before relying on them.
-3. **Trace ownership.** Follow inputs, state, side effects, and the surrounding call sites until you can see where the behavior actually lives and how the end-to-end flow works.
-4. **Audit the shape before editing.** The problem is often the wrong code being present, not code missing. Look for duplicate state, a second source of truth, abandoned migrations, dead or disabled branches, stale compatibility code, and abstraction with a single caller that guards no real boundary. Before removing code that only looks dead, confirm it is truly unreachable — no live call site, no reachable state, no path it quietly protects.
-5. **Reuse before writing.** Find what already does the job — the codebase's own helper, pattern, or idiom first, then a built-in platform or library primitive — and extend the existing owner rather than fork a near-duplicate. Re-implementing a capability the system already has is the most common way good diffs go bad.
-6. **Weigh the options, then choose.** Compare the strongest realistic paths — more diagnosis, deletion, consolidation, reuse, or a narrow addition — and the competing explanations for the cause, not just the fixes. Pick the smallest change that fully solves the problem and leaves the owning path most auditable: fewer sources of truth, fewer branches, clearer ownership, logic kept with its existing owner, in the project's idiom unless the idiom is the problem. Once you can say why it beats the alternatives, act — don't ritualize the comparison.
-7. **Verify your result.** Focused tests for logic changes (including updating or removing tests that pinned the old behavior); targeted local validation for UI, lifecycle, concurrency, storage, or integration behavior — done yourself before handing back. Confirm any simplification cut clutter without erasing useful behavior or product character.
+## Replace; do not layer
 
-## Where complexity hides
+When a requirement makes behavior obsolete, remove or replace that behavior at its owner. Do not retain it behind another boolean, mode, guard, wrapper, suppression condition, retry layer, or configuration option unless a current supported consumer, persisted format, deployment boundary, or explicit product requirement demonstrably needs both paths. Compatibility requires a named supported client, format, or deployment boundary and a concrete failure without it; hypothetical future use is insufficient. Keep necessary compatibility at one boundary rather than spreading it through the core.
 
-Look hardest where simplification tends to go wrong: state ownership and synchronization; concurrency, async lifetimes, and cancellation; navigation, lifecycle, and scheduling; storage schemas, migrations, and caching; configuration and environment-specific branches; permissions and external integrations.
+A fallback is additional product behavior, not free reliability. Keep one only when its degraded behavior is acceptable, preserves the product's invariant and identity, has one owner, cannot compete with the primary path, and can be tested. If a fallback is unacceptable, delete it or narrow its boundary; do not preserve it and add selective suppression. When no acceptable fallback exists, prefer an explicit failure over silently doing the wrong thing.
 
-## Altitude
+## Keep shape and scope small
 
-Altitude — the level of abstraction the code sits at — fails in both directions. Too high: speculative generality — layers, options, and parameters with one real caller, abstraction added to feel architectural, complexity moved around instead of removed, one responsibility split across several owners. Too low: repetition that wants a name, hand-rolled machinery that reimplements a built-in primitive. Adding structure is right when it enforces a real boundary, preserves an invariant, or contains complexity better than a flatter shape would — when you add, say why it beats deletion or consolidation, not just that it works. Naming is a cheap probe: a thing you can't name honestly is usually the wrong shape. Keep the clear shape efficient: no gratuitous recomputation, repeated I/O, or quadratic passes over unbounded input — and never contort readable code for an unmeasured micro-win.
+Do not implement an adjacent improvement merely because it is valid. Include adjacent work only when necessary to preserve the invariant, remove duplication created by the requested change, delete behavior the change made obsolete, or keep the owning path coherent. Report other opportunities without modifying them. Avoid unrelated renaming, formatting, file movement, comment rewriting, abstraction, observability, hardening, and drive-by cleanup.
 
-## The final pass
+In bug fixes and simplification work, treat every new state, runtime branch, fallback, abstraction, public API, protocol requirement, configuration option, dependency, or source of truth as a cost. First ask whether deletion, consolidation, or replacement makes it unnecessary. Feature work may require new behavior, but it should live with the existing owner and remove paths it supersedes.
 
-Working is not done. Re-read the complete diff as a skeptical reviewer: leftover scaffolding and debug output; comments that narrate the change or the process instead of stating a constraint the code can't show; unused parameters, imports, and guards for impossible states; a near-duplicate of something that already existed; churn — renames, reformatting, drive-by edits — that doesn't trace to the task or a verified improvement. Then look once more at the shape: the working version often reveals a simplification the plan couldn't see, and folding it in now is cheap. Every hunk should earn its place; this pass is what separates a diff that works from one that is finished.
+Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Do not compress readable code or remove useful checks to reduce line count.
 
-## Don't force it
+Keep comments only when they explain an enduring constraint, non-obvious invariant, external requirement, or why a simpler-looking implementation is wrong. Delete comments that narrate the change, preserve bug history, repeat the code, or describe scaffolding that no longer exists. History belongs in commits and regression tests.
 
-Don't edit on a hunch, and don't impose a generic best-practice pattern over the system's documented and actual behavior. If you can't name the owning path, verify the fact, or explain why your change beats the strongest alternative, keep investigating instead of patching. And don't over-work a task whose path is already clear — match effort to the task, and don't turn a small mechanical edit into process theater.
+## Finish subtractively, then stop
+
+After the change works, review the complete affected diff. The final pass is subtractive: delete scaffolding, debug output, redundant guards, unused state, parameters, imports, configuration, obsolete tests, narrative comments, near-duplicates, and unrelated churn; inline or consolidate where that leaves the owner clearer. It must not introduce a new capability, fallback, abstraction, compatibility path, configuration option, or unrelated fix. If review exposes a correctness problem in the requested invariant, return to the owning-path workflow; otherwise report separate opportunities and leave them untouched.
+
+Stop when the invariant holds, relevant verification passes, behavior made obsolete by the change is removed or retained with evidence, no competing owner or duplicate source of truth was introduced, and the diff contains no unrelated work.
+
+Do not edit on a hunch or impose a generic best practice over the system's documented constraints and actual behavior. A verified no-edit result is successful. If you cannot name the owner, verify the premise, or explain why the change beats the strongest alternative, continue diagnosing instead of patching. Report unavailable evidence as `unknown` rather than guessing.
 
 ## Report
 
-Before a non-trivial edit, give a short read: the concrete problem, the local evidence, the chosen path, the main risk, and how you'll check it. After, state what changed, what you verified, and any residual risk — including adjacent improvements you confirmed and made, and anything you spotted but couldn't fully verify, surfaced for a decision rather than left unsaid. Compress to a line for tiny edits.
+Before a non-trivial edit, give a short read: the problem, evidence, chosen operation, main risk, and verification plan. Afterward, state what changed; what was deleted, replaced, or consolidated; what was verified; and what remains unknown or intentionally unchanged. Compress tiny changes to one or two lines.
