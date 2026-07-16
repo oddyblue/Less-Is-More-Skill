@@ -1,4 +1,4 @@
 interface:
   display_name: "Less Is More"
   short_description: "Architecture-first workflow for cleaner, auditable code changes"
-  default_prompt: "Use $less-is-more to trace the owning invariant, prefer no edit or subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, verify the real outcome, and finish subtractively."
+  default_prompt: "Use $less-is-more to trace the owning invariant, prefer no edit or subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, refute your own diagnosis and fix before believing them, verify the real outcome, and finish subtractively."
