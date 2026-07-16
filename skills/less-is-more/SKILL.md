@@ -1,17 +1,19 @@
 ---
 name: less-is-more
-description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use to trace the owning path, prefer no edit and subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, verify the real outcome, and finish with a subtractive diff pass.
+description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use to trace the owning path, prefer no edit and subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, refute your own diagnosis and fix before believing them, verify the real outcome, and finish with a subtractive diff pass.
 ---
 
 # Less Is More
 
 Leave the system easier to inspect, explain, change, and trust.
 
-Prefer, in order: **no edit, deletion, consolidation, replacement, then a narrow addition**. This is a decision order, not a checklist to perform or narrate. Correctness, explicit product requirements, user data, and useful product character outrank line count. The target is less accidental complexity: fewer competing owners, sources of truth, states, branches, fallbacks, abstractions, dependencies, and things that must change together.
+Prefer, in order: **no edit, deletion, consolidation, replacement, then a narrow addition**. This is a decision order, not a checklist to perform or narrate. Correctness, explicit product requirements, user data, and useful product character outrank line count. Simplicity is measured in mechanisms, not lines: competing owners, sources of truth, states, branches, fallbacks, abstractions, dependencies, and things that must change together. Smallest means fewest mechanisms at the right depth, never the smallest diff — a bandaid at the wrong layer is a large change disguised as a small one, and a larger edit that deletes a mechanism is often the smaller change.
+
+This skill is a loop, not a preamble: re-apply the decision order at each new sub-task, and re-read "Finish subtractively, then stop" immediately before reviewing the final diff — that pass is where most of the value is realized or lost.
 
 ## Establish the real problem
 
-For non-trivial work, decide whether the request is an audit, bug fix, feature, simplification, or a mix. Do not call new product behavior simplification, and do not turn classification into ceremony. If the request is materially ambiguous, contradictory, destructive, or likely to affect user data, ask one precise question; otherwise state the narrowest safe assumption and proceed.
+Know which kind of work the request is — audit, bug fix, feature, simplification — and do not call new product behavior simplification. If the request is materially ambiguous, contradictory, destructive, or likely to affect user data, ask one precise question; otherwise state the narrowest safe assumption and proceed.
 
 1. **Start from real state.** Read the applicable repository instructions, current files, configuration, dependencies, tests, generated sources, and working tree. Protect unrelated user changes. Do not reason from memory when the current system can be inspected.
 2. **Name the invariant and owner.** State what must be true, which component enforces it, what state and side effects it owns, and what success and failure mean. If the invariant or owner is unclear, keep investigating.
@@ -20,6 +22,8 @@ For non-trivial work, decide whether the request is an audit, bug fix, feature, 
 5. **Audit the shape before writing.** Look for duplicate state, competing owners, second sources of truth, obsolete branches, abandoned migrations, unsupported compatibility, unacceptable fallbacks, unused configuration, hand-edited generated output, and abstractions that guard no real boundary. Before deleting apparently dead code, check reachable callers, supported clients, persisted data, migrations, and deployment paths.
 6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
 7. **Verify the real outcome.** Use focused regression tests where behavior changed, remove tests that preserve obsolete behavior, and run the relevant broader checks. Match verification to the claim: an internal event is not proof of audible playback, visible rendering, durable persistence, delivered data, or completed teardown. Use real integration, lifecycle, device, or human checks when software tests cannot establish the result.
+
+Refute before you believe. Before acting on a diagnosis, and again before shipping the fix, make one serious attempt to prove it wrong: name the strongest alternative cause, construct the input or state that would break the fix, re-check the assumption most likely to be stale. What survives is confirmed; everything else is plausible — report which one you have. A diagnosis that dissolves under refutation saved a wrong edit; that is the workflow succeeding.
 
 ## Replace; do not layer
 
@@ -32,6 +36,8 @@ A fallback is additional product behavior, not free reliability. Keep one only w
 Do not implement an adjacent improvement merely because it is valid. Include adjacent work only when necessary to preserve the invariant, remove duplication created by the requested change, delete behavior the change made obsolete, or keep the owning path coherent. Report other opportunities without modifying them. Avoid unrelated renaming, formatting, file movement, comment rewriting, abstraction, observability, hardening, and drive-by cleanup.
 
 In bug fixes and simplification work, treat every new state, runtime branch, fallback, abstraction, public API, protocol requirement, configuration option, dependency, or source of truth as a cost. First ask whether deletion, consolidation, or replacement makes it unnecessary. Feature work may require new behavior, but it should live with the existing owner and remove paths it supersedes.
+
+A mechanism that survives the cost test ships with its invariant stated where it lives: one or two lines at the definition saying what must be true and why this exists. If that sentence cannot be written, the mechanism has not earned its place. The same test runs in reverse — code whose invariant nobody can state is a deletion candidate.
 
 Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Do not compress readable code or remove useful checks to reduce line count.
 
