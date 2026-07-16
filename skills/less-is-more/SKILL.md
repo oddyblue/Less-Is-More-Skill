@@ -23,7 +23,7 @@ Know which kind of work the request is — audit, bug fix, feature, simplificati
 6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
 7. **Verify the real outcome.** Use focused regression tests where behavior changed, remove tests that preserve obsolete behavior, and run the relevant broader checks. Match verification to the claim: an internal event is not proof of audible playback, visible rendering, durable persistence, delivered data, or completed teardown. Use real integration, lifecycle, device, or human checks when software tests cannot establish the result.
 
-Refute before you believe. Before acting on a diagnosis, and again before shipping the fix, make one serious attempt to prove it wrong: name the strongest alternative cause, construct the input or state that would break the fix, re-check the assumption most likely to be stale. What survives is confirmed; everything else is plausible — report which one you have. A diagnosis that dissolves under refutation saved a wrong edit; that is the workflow succeeding.
+Refute before you believe. Before acting on a diagnosis, and again before shipping the fix, make one serious attempt to prove it wrong: name the strongest alternative cause, construct the input or state that would break the fix, re-check the assumption most likely to be stale. What survives is confirmed; everything else is plausible — report which one you have. A diagnosis that dissolves under refutation has spared you a wrong edit; that is the workflow succeeding.
 
 ## Replace; do not layer
 
@@ -37,7 +37,7 @@ Do not implement an adjacent improvement merely because it is valid. Include adj
 
 In bug fixes and simplification work, treat every new state, runtime branch, fallback, abstraction, public API, protocol requirement, configuration option, dependency, or source of truth as a cost. First ask whether deletion, consolidation, or replacement makes it unnecessary. Feature work may require new behavior, but it should live with the existing owner and remove paths it supersedes.
 
-A mechanism that survives the cost test ships with its invariant stated where it lives: one or two lines at the definition saying what must be true and why this exists. If that sentence cannot be written, the mechanism has not earned its place. The same test runs in reverse — code whose invariant nobody can state is a deletion candidate.
+A mechanism that survives the cost test ships with its invariant stated at its definition: one or two lines saying what must be true and why this exists. If that sentence cannot be written, the mechanism has not earned its place. The same test runs in reverse — code whose invariant nobody can state is a deletion candidate.
 
 Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Do not compress readable code or remove useful checks to reduce line count.
 
