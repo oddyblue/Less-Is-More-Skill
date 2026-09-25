@@ -34,6 +34,8 @@ Claude Code triggers it automatically from the description, or invoke it explici
 cp -r skills/less-is-more ~/.codex/skills/
 ```
 
+Codex can also load it on its own, or invoke it explicitly with `$less-is-more`.
+
 ### Cursor and other agents
 
 ```bash
@@ -44,7 +46,7 @@ For an agent without skill support, paste `SKILL.md`, minus its `---` header, in
 
 ### Always-on companion (recommended)
 
-Agents rarely load a skill on their own, and bloat happens in ordinary sessions. Put this short rule in your global `CLAUDE.md` or `AGENTS.md` so every session gets the core idea, and the skill handles deliberate cleanup:
+Agents rarely load a skill on their own, and bloat happens in ordinary sessions. Put this short rule in your global `CLAUDE.md` or `AGENTS.md` so every session gets the core idea, and the skill adds the full approach whenever it's invoked:
 
 ```text
 Keep the project small: code and the text around it. Before adding anything, check whether deleting, merging, or reusing what exists solves the task. Fix problems where they start, not with a special case per symptom. When new behavior replaces old, remove the old path; don't keep it behind a flag, fallback, or special case. Do everything asked, fully, and add no features, options, or layers the app didn't ask for. Fix real bugs you find when you're sure of the problem and the fix; otherwise report them. A cleanup should come out smaller. Before finishing, remove anything the task would still work without. For cleanups, refactors, and larger changes, use the less-is-more skill.
@@ -59,7 +61,7 @@ Keep the project small: code and the text around it. Before adding anything, che
 
 ## Honest calibration
 
-Top models already delete obvious dead code. The gains are in the places they still drift: patching each symptom with a new rule, keeping replaced behavior as a fallback, and approving their own additions. A small self-built smoke test on an earlier draft (Opus 5.5, one run per variant) found no over-deletion and nothing broken; treat it as a sanity check, not proof. The skill scales to the task: a typo fix needs none of it.
+Top models already delete obvious dead code. The gains are in the places they still drift: patching each symptom with a new rule, keeping replaced behavior as a fallback, and approving their own additions. A small self-built smoke test of the final text (Opus 5.5, one run per task) found no over-deletion and nothing broken; treat it as a sanity check, not proof. Its steps scale to the task; the principle applies to every change.
 
 ## License
 

@@ -1,15 +1,15 @@
 ---
 name: less-is-more
-description: Keeps code and the text around it small: delete, merge, or replace before adding. Use when simplifying, cleaning up, refactoring, or removing code or instructions; when the user mentions unnecessary code, overcomplication, bloat, or "reduction first"; and for larger changes where the project should not grow.
+description: Reduction-first coding for every change, whether building, fixing, refactoring, or cleaning up. Delete, merge, or replace before adding, so the project ends up smaller and simpler without losing anything the app needs, in code and in the text around it. Matters most for cleanups, refactors, and larger changes.
 ---
 
 # Less Is More
 
-Leave the project smaller and simpler than it would otherwise be, without losing anything the app needs. This applies to code and to the text around it: instructions, rules, docs, notes, and reports.
+A way of working for every change, not a cleanup mode: leave the project smaller and simpler than it would otherwise be, without losing anything the app needs. This applies to code and to the text around it: instructions, rules, docs, notes, and reports. Everything the project keeps is read and paid for in every later session; a small project keeps agents fast, cheap, and smart.
 
 Measure in moving parts first, then lines. Moving parts are separate paths doing the same job, copies of the same state, special cases, fallbacks, flags and options, layers, dependencies, and things that must change together. Deleting large chunks of code or text is often the best change available, and a larger edit that removes a moving part beats a small patch that adds one. Fewer lines is a real gain; just never squeeze readable code or drop real checks to get there.
 
-Scale this to the task: a typo fix needs none of it; a refactor needs all of it.
+Scale the steps to the task, never the principle: a typo fix needs none; a refactor needs all.
 
 ## Before editing
 
@@ -41,7 +41,7 @@ For real problems you find along the way — bugs, dead code, outdated text, dup
 
 When it works, review the whole change for things to remove:
 
-- Check the net size: lines added and removed, and new files. A cleanup, refactor, or reduction should come out smaller; if it doesn't, say why before finishing. Other work may grow.
+- Check the net size: lines added and removed, and new files. A cleanup, refactor, or reduction should come out smaller; if it doesn't, say why before finishing. Other work may grow, but only by what it needs.
 - For each new function, file, branch, flag, fallback, option, dependency, or test, ask what would break without it. If nothing the task needs, remove it; when that's cheap to test, actually remove it and re-run the check.
 - Remove leftovers: debug output, scaffolding, unused parameters and imports, comments that narrate the change, near-duplicates of existing code.
 - Tests are code too. Keep about one focused test per changed behavior where the project keeps tests, delete tests for behavior you removed, and trust a new test only after seeing it fail without the fix.
