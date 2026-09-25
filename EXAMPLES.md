@@ -14,29 +14,12 @@ Wrong move:
 
 Better move:
 
-- trace the owning sync path end to end
+- trace the sync path end to end to where the state is decided
 - identify where source of truth diverges
 - compare whether the bug is caused by stale cache, wrong ownership, or a lifecycle race
 - fix the real owner, then verify the regression with a focused check
 
-## 2. Time-Sensitive Facts Get Verified Live
-
-**User request:** "Update this code for the latest framework API."
-
-Wrong move:
-
-- rely on remembered syntax
-- copy an older snippet from memory
-- patch call sites before checking release notes or current docs
-
-Better move:
-
-- use the actual current date
-- verify the current API in official docs or release notes
-- confirm whether the framework changed behavior, naming, defaults, or migration guidance
-- only then choose the narrowest correct update
-
-## 3. The First Plausible Fix Is Not Automatically The Right Fix
+## 2. The First Plausible Fix Is Not Automatically The Right Fix
 
 **User request:** "Clean up this auth flow."
 
@@ -50,27 +33,25 @@ Better move:
 
 - identify the current owner of auth state
 - remove duplicate state and stale compatibility branches
-- move invariants closer to their owner
+- keep each rule next to the code that enforces it
 - prefer one obvious path over multiple coordinating layers
 
-## 4. Research Narrows Uncertainty Instead Of Becoming Theater
+## 3. One Rule Per Symptom Is Not A Fix
 
-**User request:** "Why is this endpoint slow in production?"
+**User request:** "Turkish users say the coach keeps starting replies with 'As an AI…'. Fix it."
 
 Wrong move:
 
-- browse broadly
-- repeat generic performance advice
-- produce a long memo without proving anything about this code path
+- add Turkish phrases to the banned-phrase filter
+- add German ones while you're there
 
 Better move:
 
-- inspect the local implementation and surrounding call sites
-- identify the strongest realistic causes
-- research only the unstable facts that could change the diagnosis
-- choose the fix only after the bottleneck is defensible with evidence
+- find where the behavior is decided: the "never mention being an AI" instruction was sent only to English users
+- send it to every language
+- notice the phrase filter is never called by the app, and delete it instead of growing it
 
-## 5. The Diff Gets A Final Pass
+## 4. The Diff Gets A Final Pass
 
 **User request:** "Add the export feature."
 

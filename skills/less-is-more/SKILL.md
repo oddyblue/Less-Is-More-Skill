@@ -1,60 +1,54 @@
 ---
 name: less-is-more
-description: Architecture-first, reduction-first workflow for code changes, debugging, refactoring, and cleanup. Use to trace the owning path, prefer no edit and subtraction before additions, replace obsolete behavior instead of layering around it, keep scope closed, refute your own diagnosis and fix before believing them, verify the real outcome, and finish with a subtractive diff pass.
+description: Keeps code and the text around it small: delete, merge, or replace before adding. Use when simplifying, cleaning up, refactoring, or removing code or instructions; when the user mentions unnecessary code, overcomplication, bloat, or "reduction first"; and for larger changes where the project should not grow.
 ---
 
 # Less Is More
 
-Leave the system easier to inspect, explain, change, and trust.
+Leave the project smaller and simpler than it would otherwise be, without losing anything the app needs. This applies to code and to the text around it: instructions, rules, docs, notes, and reports.
 
-Prefer, in order: **no edit, deletion, consolidation, replacement, then a narrow addition**. This is a decision order, not a checklist to perform or narrate. Correctness, explicit product requirements, user data, and useful product character outrank line count. Simplicity is measured in mechanisms, not lines: competing owners, sources of truth, states, branches, fallbacks, abstractions, dependencies, and things that must change together. Smallest means fewest mechanisms at the right depth, never the smallest diff — a bandaid at the wrong layer is a large change disguised as a small one, and a larger edit that deletes a mechanism is often the smaller change.
+Measure in moving parts first, then lines. Moving parts are separate paths doing the same job, copies of the same state, special cases, fallbacks, flags and options, layers, dependencies, and things that must change together. Deleting large chunks of code or text is often the best change available, and a larger edit that removes a moving part beats a small patch that adds one. Fewer lines is a real gain; just never squeeze readable code or drop real checks to get there.
 
-This skill is a loop, not a preamble: re-apply the decision order at each new sub-task, and re-read "Finish subtractively, then stop" immediately before reviewing the final diff.
+Scale this to the task: a typo fix needs none of it; a refactor needs all of it.
 
-## Establish the real problem
+## Before editing
 
-Know which kind of work the request is — audit, bug fix, feature, simplification — and do not call new product behavior simplification. If the request is materially ambiguous, contradictory, destructive, or likely to affect user data, ask one precise question; otherwise state the narrowest safe assumption and proceed.
+Find where the behavior is actually decided and work there, not where the symptom shows up. Most unnecessary code comes from fixing the wrong thing, so try once to prove your diagnosis wrong before acting on it. Where logs or recorded data exist, look at what actually happened instead of reasoning about it.
 
-1. **Start from real state.** Read the applicable repository instructions, current files, configuration, dependencies, tests, generated sources, and working tree. Protect unrelated user changes. Do not reason from memory when the current system can be inspected — and that includes data: print an artifact's actual shape (top-level keys, one row) before parsing or mutating it.
-2. **Name the invariant and owner.** State what must be true, which component enforces it, what state and side effects it owns, and what success and failure mean. If the invariant or owner is unclear, keep investigating.
-3. **Verify what can drift.** Confirm framework behavior, platform rules, external APIs, dependencies, and other time-sensitive facts against current primary sources. Say `unknown` when evidence is unavailable.
-4. **Trace end to end.** Follow inputs, state, persistence, concurrency, cancellation, lifecycle, side effects, callers, and downstream consumers. Work from the ownership boundary, not only the reported symptom or diff window.
-5. **Audit the shape before writing.** Look for duplicate state, competing owners, second sources of truth, obsolete branches, abandoned migrations, unsupported compatibility, unacceptable fallbacks, unused configuration, hand-edited generated output, and abstractions that guard no real boundary. Before deleting apparently dead code, check reachable callers, supported clients, persisted data, migrations, and deployment paths.
-6. **Choose the smallest coherent operation.** Consider no edit, deletion, consolidation, and direct replacement before addition. Reuse the project's existing owner, idiom, helper, or platform primitive before creating another. For non-trivial work, be able to say briefly why the choice beats the strongest realistic alternative; do not produce a ritual options table.
-7. **Verify the real outcome.** Use focused regression tests where behavior changed. A new regression test is evidence only after it has been shown able to fail — run it against the unfixed behavior, or break the fix once — and its fixture must provably reach the code under test; prefer exact assertions, since a negative assertion ("does not contain") passes vacuously when the setup silently produces nothing. Remove tests that pin behavior the change deliberately made obsolete, naming the requirement that obsoleted them; never delete a test merely because it fails. Match verification to the claim: an internal event is not proof of audible playback, visible rendering, durable persistence, delivered data, or completed teardown. Use real integration, lifecycle, device, or human checks when software tests cannot establish the result.
+Then consider, in order: no edit, delete, merge, replace, and only then add the smallest thing that fully works. Look for what already does the job — an existing function, pattern, or platform feature — before writing a new one. A verified "no change needed" is a good result.
 
-Refute before you believe. Before acting on a diagnosis or a recommendation, and again before shipping the fix, make one serious attempt to prove it wrong: name the strongest alternative cause, construct the input or state that would break the fix, re-check the assumption most likely to be stale. When a corpus of measured artifacts already exists, count rather than reason — "which branch did the failures actually take?" is a query, not an opinion. What survives is confirmed; everything else is plausible — report which one you have. A diagnosis that dissolves under refutation has spared you a wrong edit; that is the workflow succeeding.
+For a replacement or cleanup, name exactly what will go: the functions, branches, files, or settings. Afterward, check that they are actually gone.
 
-## Replace; do not layer
+## While editing
 
-When a requirement makes behavior obsolete, remove or replace that behavior at its owner. Do not retain it behind another boolean, mode, guard, wrapper, suppression condition, retry layer, or configuration option unless a current supported consumer, persisted format, deployment boundary, or explicit product requirement demonstrably needs both paths. Compatibility requires a named supported client, format, or deployment boundary and a concrete failure without it; hypothetical future use is insufficient. Keep necessary compatibility at one boundary rather than spreading it through the core.
+Replace; don't layer. When new behavior supersedes old behavior, delete the old path. Don't keep it behind a flag, mode, guard, fallback, or wrapper unless something real still depends on it — a named client, a saved data format, an app or server version still in use — and then keep that at one edge.
 
-When a fix's shape is "add a denylist, regex, or classifier to reject bad input", first cost out deleting the rule it defends: against an adversary who can rephrase, a list that must grow one entry per phrasing is not a defense, and if the old rule never caught the adversarial phrasings either, the protection was already illusory — deletion is the fix. (Allowlists, input validation, and enumerated protocol or locale maps legitimately grow per case; the disqualification is for adversarial denylists standing as the only defense.) If the rule survives that test and a guard is still warranted, enumerate the true positives it must still admit and test them in the same edit — a suppression list is a scope change, not a nit — and check what fraction of real cases a numeric predicate fires on: one that is almost always true is noise, not a rule. When refutation breaks your addition, check whether something you already shipped covers the requirement — deleting the addition often costs nothing.
+A fallback is extra behavior, not free safety. Keep one only if its degraded result is acceptable and testable; otherwise fail clearly.
 
-Surfaces whose value is actively measured — prompts, heuristics, thresholds, ranking under a live quality harness — are subtracted by experiment, not by taste: never prune mid-measurement; delete as a batch against the same measurement that earned the entries, attribute each regression to a specific deletion, and restore per item. Behavior obsoleted by a requirement is deleted under the rule above regardless of measurement; where no harness exists, delete and report the outcome as unverified — absence of measurement is not a reason to keep.
+Don't fix bad behavior by adding a rule per bad case — a phrase list, a per-language special case, a keyword check. Fix or remove what produces the bad cases. If an old rule never really worked, deleting it is the fix.
 
-A fallback is additional product behavior, not free reliability. Keep one only when its degraded behavior is acceptable, preserves the product's invariant and identity, has one owner, cannot compete with the primary path, and can be tested. If a fallback is unacceptable, delete it or narrow its boundary; do not preserve it and add selective suppression. When no acceptable fallback exists, prefer an explicit failure over silently doing the wrong thing.
+Store each piece of state once and derive the rest. Don't add a helper, wrapper, manager, or layer to shorten one function or for a future that isn't here. Do add structure when it removes real duplication or lets a behavior be changed without reading unrelated code.
 
-## Keep shape and scope small
+Before deleting code that looks unused, check callers, saved data, configuration, and anything loaded by name — in apps: stored settings keys, database models and migrations, Info.plist and entitlement entries, asset names, intents, and notification categories. A search with no hits is not proof. Prompts, thresholds, and heuristics tuned against a measurement are trimmed by re-measuring, not by taste.
 
-Do not implement an adjacent improvement merely because it is valid. Include adjacent work only when necessary to preserve the invariant, remove duplication created by the requested change, delete behavior the change made obsolete, or keep the owning path coherent. Report other opportunities without modifying them. Avoid unrelated renaming, formatting, file movement, comment rewriting, abstraction, observability, hardening, and drive-by cleanup.
+## Scope
 
-In bug fixes and simplification work, treat every new state, runtime branch, fallback, abstraction, public API, protocol requirement, configuration option, dependency, or source of truth as a cost. First ask whether deletion, consolidation, or replacement makes it unnecessary. Feature work may require new behavior, but it should live with the existing owner and remove paths it supersedes.
+Do everything the request asks, completely. Don't add features, options, or behavior the app didn't ask for, and don't build for imagined needs: future-proof means easy to change later, which usually means less code. When the request is ambiguous, build the most direct reading and say so; don't build for several readings at once. If a wrong reading could lose people's data or be hard to undo, ask one question first.
 
-A new mechanism that survives the cost test ships with its invariant stated at its definition: one or two lines saying what must be true and why this exists. If that sentence cannot be written, the mechanism has not earned its place. The same test runs in reverse — code whose invariant nobody can state is a deletion candidate.
+For real problems you find along the way — bugs, dead code, outdated text, duplicate paths — investigate until you are sure the problem is real and you know the best fix. If the fix is clearly better for the app, make it and say so. If you are not sure, report it instead.
 
-Derive state instead of mirroring it. Keep one owner for each side effect and policy with the code that enforces it. Do not extract a helper, protocol, wrapper, manager, or strategy merely to shorten one function. A one-caller abstraction should enforce a real boundary, isolate an external dependency, remove meaningful duplication, or make an important invariant directly testable. Do not compress readable code or remove useful checks to reduce line count.
+## Finish by subtracting
 
-Keep comments only when they explain an enduring constraint, non-obvious invariant, external requirement, or why a simpler-looking implementation is wrong. Delete comments that narrate the change, preserve bug history, repeat the code, or describe scaffolding that no longer exists. History belongs in commits and regression tests.
+When it works, review the whole change for things to remove:
 
-## Finish subtractively, then stop
+- Check the net size: lines added and removed, and new files. A cleanup, refactor, or reduction should come out smaller; if it doesn't, say why before finishing. Other work may grow.
+- For each new function, file, branch, flag, fallback, option, dependency, or test, ask what would break without it. If nothing the task needs, remove it; when that's cheap to test, actually remove it and re-run the check.
+- Remove leftovers: debug output, scaffolding, unused parameters and imports, comments that narrate the change, near-duplicates of existing code.
+- Tests are code too. Keep about one focused test per changed behavior where the project keeps tests, delete tests for behavior you removed, and trust a new test only after seeing it fail without the fix.
+- For a large change, get fresh eyes: a reviewer who didn't write it, looking only for what to delete. Approving your own additions is the known weak spot.
 
-After the change works, review the complete affected diff. The final pass is subtractive over what this change introduced: delete scaffolding, debug output, redundant guards, unused state, parameters, imports, configuration, and near-duplicates the change created — verifying reachability first (unused in the diff window is not unused; step 5's caller/client/deployment check applies). Tests the change made obsolete are removed under step 7's bar. Inline or consolidate into an existing owner where that leaves it clearer — consolidation here means merging and inlining, never extracting a new abstraction. Pre-existing cruft in touched files is reported, not swept. The pass must not introduce a new capability, fallback, abstraction, compatibility path, configuration option, or unrelated fix. If review exposes a correctness problem in the requested invariant, return to the owning-path workflow; otherwise report separate opportunities and leave them untouched.
-
-Stop when the invariant holds, relevant verification passes, behavior made obsolete by the change is removed or retained with evidence, no competing owner or duplicate source of truth was introduced, and the diff contains no unrelated work.
-
-Do not edit on a hunch or impose a generic best practice over the system's documented constraints and actual behavior. If you cannot name the owner, verify the premise, or explain why the change beats the strongest alternative, continue diagnosing instead of patching. A verified no-edit result is successful.
+Then stop; this pass starts no new work.
 
 ## Report
 
-Before a non-trivial edit, give a short read — a few sentences, not a form: the problem, evidence, chosen operation, main risk, and verification plan. Afterward, state what changed; what was deleted, replaced, or consolidated; what was verified; and what remains unknown or intentionally unchanged — including what you examined and deliberately did not cut, and why, so the next pass does not re-litigate it. Compress tiny changes to one or two lines.
+Lead with the result in plain words: the net size (+added / −removed), what was removed or merged, what you checked and how, anything you fixed beyond the request, and anything still uncertain. Claim only what the check shows: a passing test doesn't prove that sound played, the screen shows it, or data was saved. One or two lines for a small change. Don't narrate this workflow.
