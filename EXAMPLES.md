@@ -1,8 +1,8 @@
 # Examples
 
-Short examples showing what `Less Is More` changes in practice.
+Short examples of what `Less Is More` changes in practice.
 
-## 1. Hesitation Triggers Better Diagnosis
+## 1. Fix It Where It's Decided
 
 **User request:** "Fix the sync bug."
 
@@ -14,12 +14,11 @@ Wrong move:
 
 Better move:
 
-- trace the sync path end to end to where the state is decided
-- identify where source of truth diverges
-- compare whether the bug is caused by stale cache, wrong ownership, or a lifecycle race
-- fix the real owner, then verify the regression with a focused check
+- follow the data end to end to the place that decides it
+- find which cause it really is: a stale cache, two places changing the same data, or a timing problem
+- fix it there, then confirm the bug is gone with one focused check
 
-## 2. The First Plausible Fix Is Not Automatically The Right Fix
+## 2. A Cleanup Comes Out Smaller
 
 **User request:** "Clean up this auth flow."
 
@@ -31,27 +30,26 @@ Wrong move:
 
 Better move:
 
-- identify the current owner of auth state
-- remove duplicate state and stale compatibility branches
+- find the one place that should hold the signed-in state
+- delete the duplicate copies of that state and old branches nothing uses anymore
 - keep each rule next to the code that enforces it
-- prefer one obvious path over multiple coordinating layers
+- end with one obvious path and fewer files than before
 
 ## 3. One Rule Per Symptom Is Not A Fix
 
-**User request:** "Turkish users say the coach keeps starting replies with 'As an AI…'. Fix it."
+**User request:** "Users who chat in other languages say the coach keeps starting replies with 'As an AI…'. Fix it."
 
 Wrong move:
 
-- add Turkish phrases to the banned-phrase filter
-- add German ones while you're there
+- add the phrase in each language to the banned-phrase filter
 
 Better move:
 
-- find where the behavior is decided: the "never mention being an AI" instruction was sent only to English users
-- send it to every language
+- find where the behavior is decided: the "never mention being an AI" instruction was sent only in English
+- send it in every language
 - notice the phrase filter is never called by the app, and delete it instead of growing it
 
-## 4. The Diff Gets A Final Pass
+## 4. Finish By Subtracting
 
 **User request:** "Add the export feature."
 
@@ -62,7 +60,6 @@ Wrong move:
 
 Better move:
 
-- re-read the complete diff as a skeptical reviewer
-- delete scaffolding, narrating comments, and anything that doesn't trace to the task
-- replace any duplicate introduced by the feature with the existing helper
-- report separate cleanup opportunities without expanding the feature diff
+- check the net size, and ask of each addition what would break without it
+- delete the debug prints, narrating comments, and unused parameters
+- use the existing formatting helper instead of the new copy

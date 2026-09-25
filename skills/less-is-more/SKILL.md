@@ -21,11 +21,11 @@ For a replacement or cleanup, name exactly what will go: the functions, branches
 
 ## While editing
 
-Replace; don't layer. When new behavior supersedes old behavior, delete the old path. Don't keep it behind a flag, mode, guard, fallback, or wrapper unless something real still depends on it — a named client, a saved data format, an app or server version still in use — and then keep that at one edge.
+Replace; don't layer. When new behavior supersedes old behavior, delete the old path. Don't keep it behind a flag, mode, guard, fallback, or wrapper unless something real still depends on it — a named client, a saved data format, an app or server version still in use — and then keep it in one place.
 
 A fallback is extra behavior, not free safety. Keep one only if its degraded result is acceptable and testable; otherwise fail clearly.
 
-Don't fix bad behavior by adding a rule per bad case — a phrase list, a per-language special case, a keyword check. Fix or remove what produces the bad cases. If an old rule never really worked, deleting it is the fix.
+Don't fix bad behavior by adding a rule per bad case — another banned phrase, keyword check, or special case for the one input that failed. Fix or remove what produces the bad cases. If an old rule never really worked, deleting it is the fix.
 
 Store each piece of state once and derive the rest. Don't add a helper, wrapper, manager, or layer to shorten one function or for a future that isn't here. Do add structure when it removes real duplication or lets a behavior be changed without reading unrelated code.
 
@@ -33,7 +33,7 @@ Before deleting code that looks unused, check callers, saved data, configuration
 
 ## Scope
 
-Do everything the request asks, completely. Don't add features, options, or behavior the app didn't ask for, and don't build for imagined needs: future-proof means easy to change later, which usually means less code. When the request is ambiguous, build the most direct reading and say so; don't build for several readings at once. If a wrong reading could lose people's data or be hard to undo, ask one question first.
+Do everything the request asks, completely: less code is never a reason to deliver less. Don't add features, options, or behavior the app didn't ask for, and don't build for imagined needs: future-proof means easy to change later, which usually means less code. When the request is ambiguous, build the most direct reading and say so; don't build for several readings at once. If a wrong reading could lose people's data or be hard to undo, ask one question first.
 
 For real problems you find along the way — bugs, dead code, outdated text, duplicate paths — investigate until you are sure the problem is real and you know the best fix. If the fix is clearly better for the app, make it and say so. If you are not sure, report it instead.
 

@@ -1,6 +1,6 @@
 # Less Is More
 
-A reduction-first skill for coding agents — Claude Code, Codex, Cursor, and anything that reads `AGENTS.md` or the [Agent Skills](https://agentskills.io) format.
+A reduction-first skill for coding agents — Claude Code, Codex, Cursor, and anything else that reads the [Agent Skills](https://agentskills.io) format.
 
 Coding agents add. Every session leaves a little more code, a few more rules, another fallback — and the project gets slower and costlier for every agent that follows. This skill makes subtraction the default move:
 
@@ -16,21 +16,11 @@ Coding agents add. Every session leaves a little more code, a few more rules, an
 
 > No edit → delete → merge → replace → add the smallest thing that fully works.
 
-## Layout
-
-- [`skills/less-is-more/SKILL.md`](./skills/less-is-more/SKILL.md) — canonical text, the single source of truth
-- [`AGENTS.md`](./AGENTS.md) — the same text as a cross-agent root instruction file
-- [`.cursor/rules/less-is-more.mdc`](./.cursor/rules/less-is-more.mdc) — the same text as a Cursor project rule
-- [`skills/less-is-more/agents/openai.yaml`](./skills/less-is-more/agents/openai.yaml) — Codex skill interface metadata
-- [`EXAMPLES.md`](./EXAMPLES.md) — the workflow in practice
-
-If you change the skill, edit `SKILL.md` first, then mirror the body into `AGENTS.md` and the Cursor rule.
+The skill is [`skills/less-is-more/SKILL.md`](./skills/less-is-more/SKILL.md); [`EXAMPLES.md`](./EXAMPLES.md) shows it in four short cases.
 
 ## Install
 
 ### Claude Code
-
-Copy the skill folder into your user skills directory:
 
 ```bash
 cp -r skills/less-is-more ~/.claude/skills/
@@ -44,19 +34,13 @@ Claude Code triggers it automatically from the description, or invoke it explici
 cp -r skills/less-is-more ~/.codex/skills/
 ```
 
-### Skills CLI
+### Cursor and other agents
 
 ```bash
 npx skills add oddyblue/less-is-more-skill --skill less-is-more
 ```
 
-### Cursor
-
-Copy [`.cursor/rules/less-is-more.mdc`](./.cursor/rules/less-is-more.mdc) into your project's `.cursor/rules/` directory.
-
-### Any other agent
-
-Copy [`AGENTS.md`](./AGENTS.md) into the project root, or merge it with an existing `AGENTS.md`.
+For an agent without skill support, paste `SKILL.md`, minus its `---` header, into the project's `AGENTS.md`.
 
 ### Always-on companion (recommended)
 
